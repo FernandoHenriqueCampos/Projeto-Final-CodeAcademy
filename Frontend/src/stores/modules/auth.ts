@@ -1,8 +1,9 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-import { TOKEN_STORAGE_KEY } from '@/constants/auth'
 import { loginRequest, logoutRequest, meRequest, registerRequest, type LoginPayload, type RegisterPayload } from '@/services/modules/auth'
+
+const TOKEN_STORAGE_KEY = 'instaclone.token'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<Record<string, any> | null>(null)
