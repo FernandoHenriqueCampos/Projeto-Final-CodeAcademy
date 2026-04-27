@@ -1,0 +1,54 @@
+# Project tooling
+.codex/
+.cursor/
+.claude/
+
+# Dependencies
+node_modules/
+
+# Build outputs and coverage
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Caches and temp files
+.cache/
+.tmp/
+tmp/
+*.tmp
+.eslintcache
+.stylelintcache
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs and runtime files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+*.pid
+*.pid.lock
+
+# Editor/IDE
+.vscode/
+.idea/
+.zed/
+.nova/
+.fleet/
+.history/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Docker local/runtime artifacts (keep versioned docker configs)
+.docker/
+docker-data/

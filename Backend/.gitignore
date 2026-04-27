@@ -1,0 +1,60 @@
+# Project tooling
+.codex
+.cursor
+.claude
+
+# Environment and credentials
+.env
+.env.backup
+.env.production
+/auth.json
+
+# Dependencies
+/node_modules
+/vendor
+
+# Build outputs
+/public/build
+/public/hot
+/public/storage
+
+# Runtime and cache
+/storage/*.key
+/storage/pail
+/storage/logs/*
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/.phpunit.cache
+.phpunit.result.cache
+/.cache/
+/.tmp/
+/tmp/
+*.tmp
+.eslintcache
+.stylelintcache
+
+# Editor/IDE
+.phpactor.json
+/.vscode
+/.idea
+/.nova
+/.zed
+/.fleet
+/.history
+*.swp
+*.swo
+
+# Local tooling / generated helpers
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+
+# Logs
+*.log
+*.pid
+*.pid.lock
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,24 +1,15 @@
 ARG PHP_VERSION=8.4
 ARG COMPOSER_VERSION=2
-ARG NODE_VERSION=22
 
-FROM node:${NODE_VERSION}-alpine AS frontend-build
-
-WORKDIR /frontend
-
-COPY Frontend/package*.json ./
-RUN npm ci
-
-COPY Frontend/. ./
-ARG VITE_API_URL=/api
-ENV VITE_API_URL=${VITE_API_URL}
-RUN npm run build
-
+# -----------------------------------------------------------------------------
+# Stage 1: Install PHP dependencies
+# -----------------------------------------------------------------------------
 FROM composer:${COMPOSER_VERSION} AS vendor
 
 WORKDIR /app
 
-COPY Backend/composer.json Backend/composer.lock ./
+COPY composer.json composer.lock ./
+
 RUN --mount=type=cache,target=/tmp/composer-cache \
     COMPOSER_CACHE_DIR=/tmp/composer-cache \
     composer install \
@@ -28,9 +19,13 @@ RUN --mount=type=cache,target=/tmp/composer-cache \
         --prefer-dist \
         --no-progress
 
-COPY Backend/. ./
+COPY . .
+
 RUN composer dump-autoload --classmap-authoritative --no-dev
 
+# -----------------------------------------------------------------------------
+# Stage 2: FrankenPHP runtime
+# -----------------------------------------------------------------------------
 FROM dunglas/frankenphp:1-php${PHP_VERSION}-alpine AS runtime
 
 ENV APP_ENV=production \
@@ -43,7 +38,7 @@ RUN apk add --no-cache \
         bash \
         mysql-client \
         tini \
-    && install-php-extensions \
+ && install-php-extensions \
         pdo_mysql \
         intl \
         zip \
@@ -55,18 +50,16 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-COPY --from=vendor /app /app
-COPY --from=frontend-build /frontend/dist/index.html /app/public/spa/index.html
-COPY --from=frontend-build /frontend/dist/assets /app/public/assets
-COPY --from=frontend-build /frontend/dist/favicon.ico /app/public/favicon.ico
+COPY --from=vendor /app/vendor ./vendor
+COPY --from=vendor /app        ./
 
-COPY Backend/docker/entrypoint.sh /usr/local/bin/entrypoint
-COPY Backend/docker/php.ini /usr/local/etc/php/conf.d/zz-app.ini
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint
+COPY docker/php.ini       /usr/local/etc/php/conf.d/zz-app.ini
 
 RUN chmod +x /usr/local/bin/entrypoint \
-    && mkdir -p storage/framework/{cache,sessions,testing,views} storage/logs bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R ug+rwX storage bootstrap/cache
+ && mkdir -p storage/framework/{cache,sessions,testing,views} storage/logs bootstrap/cache \
+ && chown -R www-data:www-data storage bootstrap/cache \
+ && chmod -R ug+rwX storage bootstrap/cache
 
 EXPOSE 8000
 
@@ -74,4 +67,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD wget -qO- http://127.0.0.1:8000/up >/dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/entrypoint"]
+
 CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
