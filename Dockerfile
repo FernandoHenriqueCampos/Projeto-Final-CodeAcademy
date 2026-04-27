@@ -58,7 +58,7 @@ WORKDIR /app
 COPY --from=vendor /app /app
 COPY --from=frontend-build /frontend/dist/index.html /app/public/spa/index.html
 COPY --from=frontend-build /frontend/dist/assets /app/public/assets
-COPY --from=frontend-build /frontend/dist/favicon.ico /app/public/favicon.ico
+COPY --from=frontend-build /frontend/dist/code-solid-full.svg /app/public/code-solid-full.svg
 
 COPY Backend/docker/entrypoint.sh /usr/local/bin/entrypoint
 COPY Backend/docker/php.ini /usr/local/etc/php/conf.d/zz-app.ini
