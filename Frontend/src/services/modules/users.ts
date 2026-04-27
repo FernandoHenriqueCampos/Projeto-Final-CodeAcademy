@@ -48,8 +48,13 @@ export async function getSuggestionsRequest(page = 1, query = '', perPage = 9) {
   return data
 }
 
-export async function getFollowingByViewerRequest(viewerId: number | string, page = 1) {
-  const { data } = await api.get(`/users/${viewerId}/following`, { params: { page } })
+export async function getFollowingByViewerRequest(viewerId: number | string, page = 1, perPage = 20) {
+  const { data } = await api.get(`/users/${viewerId}/following`, {
+    params: {
+      page,
+      per_page: perPage,
+    },
+  })
   return data
 }
 

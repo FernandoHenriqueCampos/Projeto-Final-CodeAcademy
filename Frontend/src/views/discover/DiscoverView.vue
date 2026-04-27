@@ -15,6 +15,8 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const PAGE_SIZE = 9
+const API_FETCH_PAGE_SIZE = 50
+const MAX_FETCH_PAGES = 100
 
 const users = ref<any[]>([])
 const followingIds = ref<Set<string>>(new Set())
@@ -44,26 +46,96 @@ function extractItems(payload: any): any[] {
   return []
 }
 
-function extractTotal(payload: any): number | null {
-  const candidates = [
-    payload?.total,
-    payload?.count,
-    payload?.meta?.total,
-    payload?.pagination?.total,
-    payload?.data?.total,
-    payload?.data?.count,
-    payload?.data?.meta?.total,
-    payload?.data?.pagination?.total,
+function extractHasNextPage(payload: any): boolean {
+  const nextCandidates = [
+    payload?.next_page_url,
+    payload?.meta?.next_page_url,
+    payload?.pagination?.next_page_url,
+    payload?.links?.next,
+    payload?.data?.next_page_url,
+    payload?.data?.meta?.next_page_url,
+    payload?.data?.pagination?.next_page_url,
+    payload?.data?.links?.next,
   ]
 
-  for (const value of candidates) {
-    const parsed = Number(value)
-    if (Number.isFinite(parsed) && parsed >= 0) {
-      return parsed
+  if (nextCandidates.some((value) => typeof value === 'string' && value.length > 0)) {
+    return true
+  }
+
+  const currentPageCandidates = [
+    payload?.current_page,
+    payload?.meta?.current_page,
+    payload?.pagination?.current_page,
+    payload?.data?.current_page,
+    payload?.data?.meta?.current_page,
+    payload?.data?.pagination?.current_page,
+  ]
+
+  const lastPageCandidates = [
+    payload?.last_page,
+    payload?.meta?.last_page,
+    payload?.pagination?.last_page,
+    payload?.data?.last_page,
+    payload?.data?.meta?.last_page,
+    payload?.data?.pagination?.last_page,
+  ]
+
+  for (const current of currentPageCandidates) {
+    const currentParsed = Number(current)
+    if (!Number.isFinite(currentParsed)) continue
+
+    for (const last of lastPageCandidates) {
+      const lastParsed = Number(last)
+      if (!Number.isFinite(lastParsed)) continue
+      return currentParsed < lastParsed
     }
   }
 
-  return null
+  return false
+}
+
+async function fetchAllFollowingIds(): Promise<Set<string>> {
+  const viewerId = authStore.user?.id
+  if (!viewerId) return new Set()
+
+  const ids = new Set<string>()
+
+  for (let currentPage = 1; currentPage <= MAX_FETCH_PAGES; currentPage += 1) {
+    const payload = await getFollowingByViewerRequest(viewerId, currentPage, API_FETCH_PAGE_SIZE)
+    const items = extractItems(payload)
+
+    for (const item of items) {
+      ids.add(String(item?.id))
+    }
+
+    if (!extractHasNextPage(payload) || items.length === 0) {
+      break
+    }
+  }
+
+  return ids
+}
+
+async function fetchAllSuggestions(query: string): Promise<any[]> {
+  const allUsers: any[] = []
+
+  for (let currentPage = 1; currentPage <= MAX_FETCH_PAGES; currentPage += 1) {
+    const payload = await getSuggestionsRequest(currentPage, query, API_FETCH_PAGE_SIZE)
+    const items = extractItems(payload)
+
+    for (const user of items) {
+      allUsers.push({
+        ...user,
+        is_self: user?.id === authStore.user?.id,
+      })
+    }
+
+    if (!extractHasNextPage(payload) || items.length === 0) {
+      break
+    }
+  }
+
+  return allUsers
 }
 
 async function load() {
@@ -82,28 +154,34 @@ async function load() {
   }
 
   try {
-    const [suggestionsData, followingData] = await Promise.all([
-      getSuggestionsRequest(page.value, trimmedSearch, PAGE_SIZE),
-      getFollowingByViewerRequest(authStore.user?.id, page.value),
+    const [allSuggestions, allFollowingIds] = await Promise.all([
+      fetchAllSuggestions(trimmedSearch),
+      fetchAllFollowingIds(),
     ])
 
-    const rawUsers = extractItems(suggestionsData)
-    const totalFromPayload = extractTotal(suggestionsData)
+    followingIds.value = allFollowingIds
 
-    users.value = rawUsers.slice(0, PAGE_SIZE).map((user: any) => ({
-      ...user,
-      is_self: user?.id === authStore.user?.id,
-    }))
+    const globallySorted = allSuggestions
+      .map((user, index) => ({
+        user,
+        index,
+        followed: allFollowingIds.has(String(user?.id)),
+      }))
+      .sort((a, b) => {
+        if (a.followed === b.followed) {
+          return a.index - b.index
+        }
 
-    total.value = totalFromPayload
-    if (totalFromPayload !== null) {
-      hasNextPage.value = page.value * PAGE_SIZE < totalFromPayload
-    } else {
-      hasNextPage.value = rawUsers.length > PAGE_SIZE || rawUsers.length === PAGE_SIZE
-    }
+        return a.followed ? 1 : -1
+      })
+      .map((entry) => entry.user)
 
-    const followingItems = extractItems(followingData)
-    followingIds.value = new Set(followingItems.map((user: any) => String(user.id)))
+    total.value = globallySorted.length
+
+    const startIndex = (page.value - 1) * PAGE_SIZE
+    const endIndex = startIndex + PAGE_SIZE
+    users.value = globallySorted.slice(startIndex, endIndex)
+    hasNextPage.value = endIndex < globallySorted.length
   } catch {
     error.value = 'Nao foi possivel carregar sugestoes.'
     hasNextPage.value = false
