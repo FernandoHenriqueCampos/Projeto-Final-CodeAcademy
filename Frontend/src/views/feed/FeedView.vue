@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import PostCard from '@/components/feed/PostCard.vue'
@@ -10,6 +10,16 @@ const feedStore = useFeedStore()
 
 const error = ref('')
 const loadingMore = ref(false)
+const supportsInfiniteScroll = ref(false)
+const infiniteSentinel = ref<HTMLElement | null>(null)
+const userHasScrolled = ref(false)
+let observer: IntersectionObserver | null = null
+
+function onWindowScroll() {
+  if (window.scrollY > 0) {
+    userHasScrolled.value = true
+  }
+}
 
 function hasPostImage(post: any) {
   const value = post?.image_url ?? post?.imageUrl ?? post?.image?.url
@@ -38,7 +48,31 @@ const visiblePosts = computed(() => {
   return feedStore.posts
 })
 
+const canLoadMore = computed(() => feedStore.nextCursor !== null)
+
 onMounted(async () => {
+  supportsInfiniteScroll.value = typeof window !== 'undefined' && 'IntersectionObserver' in window
+
+  if (supportsInfiniteScroll.value) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            if (!userHasScrolled.value) continue
+            void loadMore()
+          }
+        }
+      },
+      {
+        root: null,
+        rootMargin: '220px 0px',
+        threshold: 0,
+      },
+    )
+  }
+
+  window.addEventListener('scroll', onWindowScroll, { passive: true })
+
   error.value = ''
 
   try {
@@ -49,6 +83,8 @@ onMounted(async () => {
 })
 
 async function loadMore() {
+  if (!canLoadMore.value || loadingMore.value || feedStore.loading) return
+
   loadingMore.value = true
   try {
     await feedStore.loadMoreFeed(feedStore.nextCursor)
@@ -58,6 +94,27 @@ async function loadMore() {
     loadingMore.value = false
   }
 }
+
+watch(
+  [canLoadMore, infiniteSentinel, supportsInfiniteScroll],
+  async ([hasMore, sentinel, supports]) => {
+    if (!observer) return
+
+    observer.disconnect()
+
+    if (!supports || !hasMore || !sentinel) return
+
+    await nextTick()
+    observer.observe(sentinel)
+  },
+  { flush: 'post' },
+)
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onWindowScroll)
+  observer?.disconnect()
+  observer = null
+})
 </script>
 
 <template>
@@ -80,19 +137,46 @@ async function loadMore() {
       Nenhuma publicacao encontrada para esse filtro.
     </article>
 
+    <div
+      v-if="supportsInfiniteScroll && canLoadMore"
+      ref="infiniteSentinel"
+      class="infinite-sentinel"
+      aria-hidden="true"
+    />
+
+    <article v-if="loadingMore" class="card-shell p-3 loading-more-card" aria-live="polite">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span>Carregando mais posts...</span>
+    </article>
+
     <button
-      v-if="feedStore.nextCursor !== null"
+      v-else-if="!supportsInfiniteScroll && canLoadMore"
       class="btn btn-outline-secondary load-more-btn"
       type="button"
-      :disabled="loadingMore"
       @click="loadMore"
     >
-      {{ loadingMore ? 'Carregando...' : 'Carregar mais' }}
+      Carregar mais
     </button>
   </section>
 </template>
 
 <style scoped>
+.infinite-sentinel {
+  width: 100%;
+  height: 2px;
+}
+
+.loading-more-card {
+  align-self: center;
+  width: min(340px, 100%);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+}
+
 .load-more-btn {
   align-self: center;
   width: min(260px, 100%);

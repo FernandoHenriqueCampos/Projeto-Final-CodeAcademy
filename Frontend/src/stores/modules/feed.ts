@@ -19,6 +19,7 @@ import {
 import { normalizePost } from '@/utils/post'
 
 export const useFeedStore = defineStore('feed', () => {
+  const FEED_PAGE_SIZE = 4
   const authStore = useAuthStore()
   const postsById = ref<Record<string, any>>({})
   const orderedIds = ref<Array<string>>([])
@@ -36,13 +37,30 @@ export const useFeedStore = defineStore('feed', () => {
   }
 
   function extractNextCursor(payload: any): string | null {
+    const nextLink = payload?.links?.next ?? payload?.data?.links?.next
+    let cursorFromNextLink: string | null = null
+
+    if (typeof nextLink === 'string' && nextLink.length > 0) {
+      try {
+        const parsedUrl = new URL(nextLink)
+        cursorFromNextLink = parsedUrl.searchParams.get('cursor')
+      } catch {
+        cursorFromNextLink = null
+      }
+    }
+
     const cursorValue =
       payload?.next_cursor ??
       payload?.nextCursor ??
       payload?.cursor ??
+      payload?.meta?.next_cursor ??
+      payload?.meta?.nextCursor ??
+      payload?.data?.meta?.next_cursor ??
+      payload?.data?.meta?.nextCursor ??
       payload?.data?.next_cursor ??
       payload?.data?.nextCursor ??
-      payload?.data?.cursor
+      payload?.data?.cursor ??
+      cursorFromNextLink
 
     if (cursorValue === undefined || cursorValue === null || cursorValue === '') {
       return null
@@ -75,7 +93,7 @@ export const useFeedStore = defineStore('feed', () => {
   async function fetchFeed() {
     loading.value = true
     try {
-      const data = await fetchFeedRequest()
+      const data = await fetchFeedRequest(null, FEED_PAGE_SIZE)
       resetFeed()
       upsertPosts(extractFeedItems(data))
       nextCursor.value = extractNextCursor(data)
@@ -86,7 +104,7 @@ export const useFeedStore = defineStore('feed', () => {
   }
 
   async function loadMoreFeed(cursor?: string | null) {
-    const data = await fetchFeedRequest(cursor ?? nextCursor.value)
+    const data = await fetchFeedRequest(cursor ?? nextCursor.value, FEED_PAGE_SIZE)
     upsertPosts(extractFeedItems(data))
     nextCursor.value = extractNextCursor(data)
     return data

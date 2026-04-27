@@ -6,8 +6,6 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-laravel}
       MYSQL_USER: ${MYSQL_USER:-laravel}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-laravel}
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -16,25 +14,41 @@ services:
       timeout: 5s
       retries: 12
 
-  app:
+  backend:
     build:
-      context: .
+      context: ./Backend
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:-/api}
-    image: projeto-final/fullstack
+    image: projeto-final/backend
     env_file:
       - Backend/.env
     environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: ${APP_URL:-http://localhost:8080}
       DB_HOST: mysql
-    ports:
-      - "8000:8000"
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE:-laravel}
+      DB_USERNAME: ${MYSQL_USER:-laravel}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-laravel}
     volumes:
-      - app_storage:/app/storage
+      - backend_storage:/app/storage
     depends_on:
       mysql:
         condition: service_healthy
 
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    image: projeto-final/frontend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
 volumes:
   mysql_data: {}
-  app_storage: {}
+  backend_storage: {}

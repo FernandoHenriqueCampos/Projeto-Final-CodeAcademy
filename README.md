@@ -18,7 +18,7 @@ Ao longo do desenvolvimento, o projeto evoluiu com melhorias de arquitetura e en
 - integracao com backend Laravel;
 - busca e descoberta de usuarios;
 - feed com filtro visual e interacoes sociais;
-- dockerizacao unificada de frontend + backend;
+- dockerizacao separada para frontend e backend;
 - populacao automatica do backend com dados mockados para demonstracao.
 
 ## Contexto e autoria
@@ -145,7 +145,6 @@ Nao e a modelagem ideal, mas foi uma decisao pratica para manter a proposta do `
 │   │   ├── stores/
 │   │   ├── utils/
 │   │   └── views/
-├── Dockerfile
 ├── compose.yaml
 └── README.md
 ```
@@ -157,14 +156,13 @@ O sistema foi dividido em duas partes:
 - `Frontend/`: interface responsavel pelas telas, navegacao, autenticacao e consumo da API.
 - `Backend/`: API responsavel pelas regras de negocio, autenticacao, usuarios, posts, comentarios, curtidas e relacoes entre perfis.
 
-Na versao final, o frontend e compilado e servido junto com o backend no mesmo container de aplicacao, enquanto o banco MySQL roda em um container separado.
+Na versao final, o projeto sobe com os containers de aplicacao separados:
 
-Essa decisao foi tomada para:
+- `frontend`: compila o Vue e serve os arquivos estaticos com Nginx;
+- `backend`: executa a API Laravel com FrankenPHP;
+- `mysql`: banco de dados usado pela API.
 
-- simplificar a execucao local;
-- facilitar a apresentacao do projeto;
-- permitir que a aplicacao suba com um unico comando;
-- deixar o ambiente mais facil de reproduzir em outra maquina.
+O Nginx do frontend tambem encaminha as rotas `/api`, `/storage` e `/docs` para o backend. Assim o navegador acessa a aplicacao por uma unica porta, mas o codigo de frontend e backend continua isolado em imagens diferentes.
 
 ## Dados Mockados
 
@@ -192,8 +190,10 @@ docker compose up -d --build
 Depois disso, a aplicacao fica disponivel em:
 
 ```text
-http://localhost:8000
+http://localhost:8080
 ```
+
+O backend fica disponivel apenas dentro da rede Docker, e o frontend faz proxy das chamadas para a API por `/api`.
 
 Se for necessario recriar tudo do zero, incluindo banco e dados mockados:
 

@@ -28,9 +28,19 @@ async function requestWithFallback(
   throw lastError
 }
 
-export async function fetchFeedRequest(cursor?: string | null) {
+export async function fetchFeedRequest(cursor?: string | null, perPage?: number) {
+  const params: Record<string, string | number> = {}
+
+  if (cursor) {
+    params.cursor = cursor
+  }
+
+  if (typeof perPage === 'number' && Number.isFinite(perPage) && perPage > 0) {
+    params.per_page = Math.floor(perPage)
+  }
+
   const { data } = await api.get('/feed', {
-    params: cursor ? { cursor } : undefined,
+    params: Object.keys(params).length ? params : undefined,
   })
 
   return data
