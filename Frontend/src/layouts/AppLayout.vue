@@ -61,23 +61,12 @@ async function handleLogout() {
 
       <section class="content-area flex-grow-1">
         <header
-          class="card-shell top-header px-3 py-3 px-md-4 py-md-3 mb-3 mb-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3"
+          class="card-shell top-header px-3 py-3 px-md-4 py-md-3 mb-3 mb-md-4 d-flex flex-row flex-wrap justify-content-between align-items-center gap-3"
         >
           <div class="header-main-row">
             <div class="header-left">
               <p class="section-kicker mb-1"><span class="dot-accent"></span> Painel</p>
               <h2 class="h5 mb-0 font-title">Central de Conteudo</h2>
-            </div>
-
-            <div class="user-menu">
-              <button class="user-chip" type="button" @click="toggleUserMenu">
-                <img :src="avatarUrl" alt="Avatar do usuario" class="header-avatar" />
-              </button>
-
-              <div v-if="userMenuOpen" class="user-dropdown card-shell">
-                <button class="dropdown-item-app" type="button" @click="goToProfile">Ir para perfil</button>
-                <button class="dropdown-item-app danger" type="button" @click="handleLogout">Sair</button>
-              </div>
             </div>
           </div>
 
@@ -89,6 +78,17 @@ async function handleLogout() {
                 <option value="posts">Posts</option>
                 <option value="debates">Debates</option>
               </select>
+            </div>
+          </div>
+
+          <div class="user-menu">
+            <button class="user-chip" type="button" @click="toggleUserMenu">
+              <img :src="avatarUrl" alt="Avatar do usuario" class="header-avatar" />
+            </button>
+
+            <div v-if="userMenuOpen" class="user-dropdown card-shell">
+              <button class="dropdown-item-app" type="button" @click="goToProfile">Ir para perfil</button>
+              <button class="dropdown-item-app danger" type="button" @click="handleLogout">Sair</button>
             </div>
           </div>
         </header>
@@ -126,11 +126,12 @@ async function handleLogout() {
 }
 
 .header-main-row {
-  width: 100%;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-start;
   gap: 1rem;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .header-left {
@@ -143,6 +144,7 @@ async function handleLogout() {
   gap: 0.65rem;
   flex-wrap: wrap;
   width: auto;
+  flex: 0 0 auto;
 }
 
 .filter-wrap {
@@ -220,14 +222,10 @@ async function handleLogout() {
   }
 
   .header-main-row {
-    width: auto;
-    flex: 1 1 auto;
     align-items: center;
   }
 
   .header-controls {
-    width: auto;
-    flex: 0 0 auto;
     justify-content: flex-end;
   }
 }
@@ -246,7 +244,8 @@ async function handleLogout() {
   }
 
   .header-main-row {
-    align-items: center;
+    width: auto;
+    flex: 1 1 auto;
   }
 
   .header-left {
@@ -259,9 +258,9 @@ async function handleLogout() {
   }
 
   .header-controls {
-    width: 100%;
+    width: auto;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
 
   .filter-wrap {

@@ -1,9 +1,33 @@
 <script setup lang="ts">
 const items = [
-  { label: 'Timeline', hint: 'Home', to: '/feed', short: '⌂' },
-  { label: 'Discover', hint: 'Explore', to: '/descobrir', short: '⌕' },
-  { label: 'Launch', hint: 'New Post', to: '/criar', short: '+' },
-  { label: 'Profile', hint: 'Me', to: '/perfil', short: '◎' },
+  {
+    label: 'Timeline',
+    hint: 'Home',
+    to: '/feed',
+    iconPath:
+      'M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-10.5Z',
+  },
+  {
+    label: 'Discover',
+    hint: 'Explore',
+    to: '/descobrir',
+    iconPath:
+      'M12 3.5a8.5 8.5 0 1 0 8.5 8.5A8.5 8.5 0 0 0 12 3.5Zm0 3.5a5 5 0 1 1-5 5 5 5 0 0 1 5-5Zm0 3.6-2.1 4.7 4.7-2.1 2.1-4.7Z',
+  },
+  {
+    label: 'Launch',
+    hint: 'New Post',
+    to: '/criar',
+    iconPath:
+      'M12 4a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 1 1 0-2h6V5a1 1 0 0 1 1-1Z',
+  },
+  {
+    label: 'Profile',
+    hint: 'Me',
+    to: '/perfil',
+    iconPath:
+      'M12 12a4.25 4.25 0 1 0-4.25-4.25A4.25 4.25 0 0 0 12 12Zm0 2c-4.3 0-7.5 2.2-7.5 5.2a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1C19.5 16.2 16.3 14 12 14Z',
+  },
 ]
 </script>
 
@@ -22,7 +46,11 @@ const items = [
           class="nav-item-app"
           active-class="active"
         >
-          <span class="symbol">{{ item.short }}</span>
+          <span class="symbol" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="nav-icon">
+              <path :d="item.iconPath" />
+            </svg>
+          </span>
           <span class="label-wrap">
             <span class="label-text">{{ item.label }}</span>
             <span class="hint-text">{{ item.hint }}</span>
@@ -43,9 +71,13 @@ const items = [
         :to="item.to"
         class="nav-item-mobile"
         active-class="active"
+        :aria-label="item.label"
         :title="item.label"
       >
-        {{ item.short }}
+        <svg viewBox="0 0 24 24" class="nav-icon" aria-hidden="true">
+          <path :d="item.iconPath" />
+        </svg>
+        <span class="visually-hidden">{{ item.label }}</span>
       </RouterLink>
     </nav>
   </div>
@@ -119,10 +151,15 @@ const items = [
   border-radius: 0.45rem;
   display: inline-grid;
   place-items: center;
-  font-size: 0.86rem;
   border: 1px solid #32435f;
   color: #d7e3ff;
   background: #111a29;
+}
+
+.nav-icon {
+  width: 1rem;
+  height: 1rem;
+  fill: currentcolor;
 }
 
 .nav-item-app.active {
@@ -168,13 +205,20 @@ const items = [
 }
 
 .nav-item-mobile {
+  display: grid;
+  place-items: center;
   text-align: center;
-  font-size: 1rem;
+  min-height: 2.7rem;
   color: var(--color-muted);
   border-radius: 0.6rem;
-  padding: 0.55rem 0;
+  padding: 0.4rem 0;
   font-weight: 700;
   font-family: 'IBM Plex Mono', monospace;
+}
+
+.nav-item-mobile .nav-icon {
+  width: 1.45rem;
+  height: 1.45rem;
 }
 
 .nav-item-mobile.active {
