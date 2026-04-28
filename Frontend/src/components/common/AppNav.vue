@@ -112,7 +112,7 @@ const items = [
   border-radius: 0.7rem;
   color: var(--color-muted);
   font-weight: 700;
-  border: 1px solid #202b3f;
+  border: 1px solid var(--color-nav-border);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.86rem;
   transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease, transform 150ms ease;
@@ -120,8 +120,8 @@ const items = [
 
 .nav-item-app:hover {
   transform: translateX(2px);
-  color: #e8efff;
-  border-color: #3a4f70;
+  color: var(--color-nav-hover-text);
+  border-color: var(--color-nav-hover-border);
 }
 
 .label-wrap {
@@ -142,7 +142,7 @@ const items = [
   font-family: 'Space Grotesk', sans-serif;
   font-size: 0.72rem;
   letter-spacing: 0.01em;
-  color: #8c9ab6;
+  color: var(--color-nav-hint);
 }
 
 .symbol {
@@ -151,9 +151,9 @@ const items = [
   border-radius: 0.45rem;
   display: inline-grid;
   place-items: center;
-  border: 1px solid #32435f;
-  color: #d7e3ff;
-  background: #111a29;
+  border: 1px solid var(--color-nav-symbol-border);
+  color: var(--color-nav-symbol-text);
+  background: var(--color-nav-symbol-bg);
 }
 
 .nav-icon {
@@ -163,14 +163,14 @@ const items = [
 }
 
 .nav-item-app.active {
-  background: #141d2d;
-  color: #f1f5ff;
-  border-color: #92b4ff;
+  background: var(--color-nav-active-bg);
+  color: var(--color-nav-active-text);
+  border-color: var(--color-nav-active-border);
 }
 
 .nav-item-app.active .symbol {
-  border-color: #9ebcff;
-  background: #1a2740;
+  border-color: var(--color-nav-active-symbol-border);
+  background: var(--color-nav-active-symbol-bg);
 }
 
 .quick-action {
@@ -179,18 +179,18 @@ const items = [
   gap: 0.6rem;
   width: 100%;
   padding: 0.8rem;
-  border: 1px solid #3a4e72;
+  border: 1px solid var(--color-nav-quick-action-border);
   border-radius: 0.7rem;
   font-weight: 700;
   font-family: 'IBM Plex Mono', monospace;
-  background: #111a29;
-  color: #ecf2ff;
+  background: var(--color-nav-quick-action-bg);
+  color: var(--color-nav-quick-action-text);
   white-space: nowrap;
 }
 
 .quick-action:hover {
-  border-color: #95b6ff;
-  background: #17243b;
+  border-color: var(--color-nav-quick-action-hover-border);
+  background: var(--color-nav-quick-action-hover-bg);
 }
 
 .mobile-nav {
@@ -222,8 +222,8 @@ const items = [
 }
 
 .nav-item-mobile.active {
-  color: #f3f6ff;
-  background: #141d2d;
+  color: var(--color-nav-active-text);
+  background: var(--color-nav-active-bg);
   font-weight: 700;
 }
 </style>

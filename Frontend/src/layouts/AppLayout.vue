@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
+import { Moon, Sun } from 'lucide-vue-next'
 
 import AppNav from '@/components/common/AppNav.vue'
+import { useTheme } from '@/composables/useTheme'
 import { useAuthStore } from '@/stores/modules/auth'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { activeTheme, toggleTheme } = useTheme()
 const selectedFilter = ref(typeof route.query.filter === 'string' ? route.query.filter : 'tudo')
 const userMenuOpen = ref(false)
 
 const avatarUrl = computed(() => authStore.user?.avatar_url || 'https://placehold.co/48x48?text=%20')
 const showFeedFilter = computed(() => route.name === 'feed')
+const themeButtonAriaLabel = computed(() =>
+  activeTheme.value === 'dark' ? 'Modo claro' : 'Modo escuro',
+)
 
 function applyFilter() {
   router.push({
@@ -79,6 +85,13 @@ async function handleLogout() {
                 <option value="debates">Debates</option>
               </select>
             </div>
+          </div>
+
+          <div class="header-controls">
+            <button class="theme-toggle-btn icon-only" type="button" :aria-label="themeButtonAriaLabel" @click="toggleTheme">
+              <Sun v-if="activeTheme === 'dark'" :size="16" aria-hidden="true" />
+              <Moon v-else :size="16" aria-hidden="true" />
+            </button>
           </div>
 
           <div class="user-menu">
@@ -152,9 +165,9 @@ async function handleLogout() {
 }
 
 .filter-wrap :deep(.form-select) {
-  background-color: #0c1320;
-  border-color: #30405e;
-  color: #e8efff;
+  background-color: var(--color-input-bg);
+  border-color: var(--color-input-border);
+  color: var(--color-input-text);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.78rem;
 }
@@ -165,8 +178,8 @@ async function handleLogout() {
   justify-content: center;
   padding: 0.2rem;
   border-radius: 999px;
-  border: 1px solid #31415f;
-  background: #101827;
+  border: 1px solid var(--color-chip-border);
+  background: var(--color-chip-bg);
   cursor: pointer;
 }
 
@@ -175,7 +188,7 @@ async function handleLogout() {
   height: 2rem;
   border-radius: 999px;
   object-fit: cover;
-  border: 1px solid #425a82;
+  border: 1px solid var(--color-avatar-border);
 }
 
 .user-menu {
@@ -200,7 +213,7 @@ async function handleLogout() {
   border: 1px solid transparent;
   border-radius: 0.6rem;
   background: transparent;
-  color: #dce7ff;
+  color: var(--color-dropdown-text);
   font-size: 0.82rem;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 700;
@@ -208,12 +221,12 @@ async function handleLogout() {
 }
 
 .dropdown-item-app:hover {
-  border-color: #3a4d70;
-  background: #121b2b;
+  border-color: var(--color-dropdown-hover-border);
+  background: var(--color-dropdown-hover-bg);
 }
 
 .dropdown-item-app.danger {
-  color: #ffadad;
+  color: var(--color-dropdown-danger);
 }
 
 @media (min-width: 768px) {

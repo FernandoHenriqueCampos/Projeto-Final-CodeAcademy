@@ -378,12 +378,12 @@ onMounted(() => {
 }
 
 .forum-body {
-  border: 1px solid #2d3b53;
+  border: 1px solid var(--color-forum-panel-border);
   border-radius: 0.95rem;
   padding: 1rem;
   background:
-    linear-gradient(180deg, rgb(143 178 255 / 10%), rgb(143 178 255 / 2%)),
-    #0d1522;
+    linear-gradient(180deg, var(--color-forum-panel-grad-top), var(--color-forum-panel-grad-bottom)),
+    var(--color-forum-panel-bg);
 }
 
 .forum-kicker {
@@ -391,7 +391,7 @@ onMounted(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #8fb2ff;
+  color: var(--color-forum-kicker);
   font-family: 'IBM Plex Mono', monospace;
 }
 
@@ -407,9 +407,9 @@ onMounted(() => {
 }
 
 .meta-chip {
-  background: #101826;
-  color: #c8d6f8;
-  border: 1px solid #2b3a54;
+  background: var(--color-meta-chip-bg);
+  color: var(--color-meta-chip-text);
+  border: 1px solid var(--color-meta-chip-border);
   border-radius: 0.55rem;
   font-size: 0.76rem;
   font-weight: 700;
@@ -421,9 +421,9 @@ onMounted(() => {
   width: 2.25rem;
   height: 2.25rem;
   padding: 0;
-  border: 1px solid #2b3a54;
+  border: 1px solid var(--color-like-btn-border);
   border-radius: 999px;
-  background: #0f1725;
+  background: var(--color-like-btn-bg);
   line-height: 1;
   display: inline-grid;
   place-items: center;
@@ -432,12 +432,12 @@ onMounted(() => {
 .heart-icon {
   display: inline-block;
   font-size: 1.2rem;
-  color: #c8d6f8;
+  color: var(--color-like-icon);
   transition: transform 120ms ease, color 120ms ease;
 }
 
 .heart-icon.liked {
-  color: #ff4d6d;
+  color: var(--color-like-icon-active);
 }
 
 .like-btn:hover .heart-icon {

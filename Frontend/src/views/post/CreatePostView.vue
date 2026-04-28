@@ -400,9 +400,9 @@ watch([cropZoom, cropOffsetX, cropOffsetY], () => {
 }
 
 .type-tab {
-  border: 1px solid #344667;
-  background: #101726;
-  color: #cad9fb;
+  border: 1px solid var(--color-segment-border);
+  background: var(--color-segment-bg);
+  color: var(--color-segment-text);
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 700;
@@ -411,9 +411,9 @@ watch([cropZoom, cropOffsetX, cropOffsetY], () => {
 }
 
 .type-tab.active {
-  border-color: #8fb2ff;
-  background: #1a2840;
-  color: #f2f6ff;
+  border-color: var(--color-segment-active-border);
+  background: var(--color-segment-active-bg);
+  color: var(--color-segment-active-text);
 }
 
 .preview {
@@ -422,7 +422,7 @@ watch([cropZoom, cropOffsetX, cropOffsetY], () => {
   aspect-ratio: 1 / 1;
   border-radius: 0.85rem;
   border: 1px solid var(--color-border);
-  background: #0b111d;
+  background: var(--color-crop-preview-bg);
 }
 
 .crop-stage {
@@ -443,10 +443,10 @@ watch([cropZoom, cropOffsetX, cropOffsetY], () => {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border: 1px solid rgb(255 255 255 / 22%);
+  border: 1px solid var(--color-crop-grid-line);
   background:
-    linear-gradient(to right, transparent 33.33%, rgb(255 255 255 / 22%) 33.33%, rgb(255 255 255 / 22%) 34%, transparent 34%, transparent 66.66%, rgb(255 255 255 / 22%) 66.66%, rgb(255 255 255 / 22%) 67%, transparent 67%),
-    linear-gradient(to bottom, transparent 33.33%, rgb(255 255 255 / 22%) 33.33%, rgb(255 255 255 / 22%) 34%, transparent 34%, transparent 66.66%, rgb(255 255 255 / 22%) 66.66%, rgb(255 255 255 / 22%) 67%, transparent 67%);
+    linear-gradient(to right, transparent 33.33%, var(--color-crop-grid-line) 33.33%, var(--color-crop-grid-line) 34%, transparent 34%, transparent 66.66%, var(--color-crop-grid-line) 66.66%, var(--color-crop-grid-line) 67%, transparent 67%),
+    linear-gradient(to bottom, transparent 33.33%, var(--color-crop-grid-line) 33.33%, var(--color-crop-grid-line) 34%, transparent 34%, transparent 66.66%, var(--color-crop-grid-line) 66.66%, var(--color-crop-grid-line) 67%, transparent 67%);
 }
 
 .crop-editor {
@@ -458,15 +458,15 @@ watch([cropZoom, cropOffsetX, cropOffsetY], () => {
 .crop-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #cdd8f6;
+  color: var(--color-crop-label);
   font-family: 'IBM Plex Mono', monospace;
 }
 
 .forum-helper {
-  border-color: #2e4060;
+  border-color: var(--color-forum-panel-border);
   background:
-    linear-gradient(180deg, rgb(143 178 255 / 9%), rgb(143 178 255 / 2%)),
-    #0e1623;
+    linear-gradient(180deg, var(--color-forum-panel-grad-top), var(--color-forum-panel-grad-bottom)),
+    var(--color-forum-panel-bg);
 }
 
 .forum-helper-kicker {
@@ -474,7 +474,7 @@ watch([cropZoom, cropOffsetX, cropOffsetY], () => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #8fb2ff;
+  color: var(--color-forum-kicker);
   font-family: 'IBM Plex Mono', monospace;
 }
 

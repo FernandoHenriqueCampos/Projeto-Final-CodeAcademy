@@ -646,10 +646,10 @@ onMounted(() => {
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 0.75rem;
-  border: 1px solid #334567;
+  border: 1px solid var(--color-forum-panel-border);
   background:
-    linear-gradient(180deg, rgb(143 178 255 / 10%), rgb(143 178 255 / 3%)),
-    #0e1623;
+    linear-gradient(180deg, var(--color-forum-panel-grad-top), var(--color-forum-panel-grad-bottom)),
+    var(--color-forum-panel-bg);
   padding: 0.8rem;
   overflow: hidden;
 }
@@ -659,7 +659,7 @@ onMounted(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #8fb2ff;
+  color: var(--color-forum-kicker);
   font-family: 'IBM Plex Mono', monospace;
 }
 
@@ -689,9 +689,9 @@ onMounted(() => {
   width: 2rem;
   height: 2rem;
   padding: 0;
-  border: 1px solid #2b3a54;
+  border: 1px solid var(--color-like-btn-border);
   border-radius: 999px;
-  background: #0f1725;
+  background: var(--color-like-btn-bg);
   line-height: 1;
   display: inline-grid;
   place-items: center;
@@ -700,12 +700,12 @@ onMounted(() => {
 .heart-icon {
   display: inline-block;
   font-size: 1.1rem;
-  color: #c8d6f8;
+  color: var(--color-like-icon);
   transition: transform 120ms ease, color 120ms ease;
 }
 
 .heart-icon.liked {
-  color: #ff4d6d;
+  color: var(--color-like-icon-active);
 }
 
 .like-btn:hover .heart-icon {
@@ -717,18 +717,18 @@ onMounted(() => {
   align-items: center;
   gap: 0.45rem;
   padding: 0.35rem 0.7rem;
-  border: 1px solid #394866;
+  border: 1px solid var(--color-meta-chip-border);
   border-radius: 999px;
-  background: #121a29;
-  color: #e6edff;
+  background: var(--color-meta-chip-bg);
+  color: var(--color-meta-chip-text);
   font-size: 0.82rem;
   font-family: 'IBM Plex Mono', 'Consolas', monospace;
   transition: border-color 140ms ease, background-color 140ms ease;
 }
 
 .social-pill:hover {
-  border-color: #8fb2ff;
-  background: #172239;
+  border-color: var(--color-segment-active-border);
+  background: var(--color-segment-active-bg);
 }
 
 .social-icon {
@@ -743,9 +743,9 @@ onMounted(() => {
 }
 
 .publication-tab {
-  border: 1px solid #344667;
-  background: #101726;
-  color: #cad9fb;
+  border: 1px solid var(--color-segment-border);
+  background: var(--color-segment-bg);
+  color: var(--color-segment-text);
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -755,14 +755,14 @@ onMounted(() => {
 }
 
 .publication-tab:hover {
-  border-color: #8fb2ff;
-  color: #eef3ff;
+  border-color: var(--color-segment-hover-border);
+  color: var(--color-segment-hover-text);
 }
 
 .publication-tab.active {
-  border-color: #8fb2ff;
-  background: #1a2840;
-  color: #f2f6ff;
+  border-color: var(--color-segment-active-border);
+  background: var(--color-segment-active-bg);
+  color: var(--color-segment-active-text);
 }
 
 .forum-list {
@@ -772,12 +772,12 @@ onMounted(() => {
 }
 
 .forum-row {
-  border: 1px solid #314564;
+  border: 1px solid var(--color-forum-panel-border);
   border-radius: 0.75rem;
   padding: 0.8rem 0.9rem;
   background:
-    linear-gradient(180deg, rgb(143 178 255 / 8%), rgb(143 178 255 / 1%)),
-    #0e1622;
+    linear-gradient(180deg, var(--color-forum-panel-grad-top), var(--color-forum-panel-grad-bottom)),
+    var(--color-forum-panel-bg);
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
@@ -785,7 +785,7 @@ onMounted(() => {
 
 .forum-title {
   font-weight: 700;
-  color: #edf2ff;
+  color: var(--color-text);
   line-height: 1.3;
 }
 
@@ -794,7 +794,7 @@ onMounted(() => {
 }
 
 .forum-preview {
-  color: #ced9f5;
+  color: var(--color-muted);
   font-size: 0.9rem;
   line-height: 1.35;
 }
@@ -807,13 +807,13 @@ onMounted(() => {
 }
 
 .forum-badge {
-  border: 1px solid #425983;
+  border: 1px solid var(--color-segment-active-border);
   border-radius: 999px;
   padding: 0.18rem 0.45rem;
   font-size: 0.64rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #b8cdfd;
+  color: var(--color-segment-active-text);
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 700;
 }
@@ -821,14 +821,14 @@ onMounted(() => {
 .forum-open-link {
   margin-left: auto;
   font-size: 0.82rem;
-  color: #d7e4ff;
+  color: var(--color-segment-hover-text);
   text-decoration: underline;
 }
 
 .confirm-backdrop {
   position: fixed;
   inset: 0;
-  background: rgb(3 6 11 / 70%);
+  background: var(--color-overlay-backdrop);
   backdrop-filter: blur(2px);
   display: grid;
   place-items: center;
