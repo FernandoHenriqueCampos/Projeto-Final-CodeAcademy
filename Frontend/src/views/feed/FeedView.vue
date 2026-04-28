@@ -13,11 +13,21 @@ const loadingMore = ref(false)
 const supportsInfiniteScroll = ref(false)
 const infiniteSentinel = ref<HTMLElement | null>(null)
 const userHasScrolled = ref(false)
+const sentinelIntersecting = ref(false)
+const pendingLoadTimer = ref<number | null>(null)
 let observer: IntersectionObserver | null = null
+const EXTRA_SCROLL_SAFETY_DELAY_MS = 1000
 
 function onWindowScroll() {
   if (window.scrollY > 0) {
     userHasScrolled.value = true
+  }
+}
+
+function clearPendingLoadTimer() {
+  if (pendingLoadTimer.value !== null) {
+    window.clearTimeout(pendingLoadTimer.value)
+    pendingLoadTimer.value = null
   }
 }
 
@@ -57,10 +67,15 @@ onMounted(async () => {
     observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            if (!userHasScrolled.value) continue
-            void loadMore()
+          sentinelIntersecting.value = entry.isIntersecting
+
+          if (!entry.isIntersecting) {
+            clearPendingLoadTimer()
+            continue
           }
+
+          if (!userHasScrolled.value) continue
+          scheduleLoadMore()
         }
       },
       {
@@ -88,11 +103,29 @@ async function loadMore() {
   loadingMore.value = true
   try {
     await feedStore.loadMoreFeed(feedStore.nextCursor)
+    await new Promise((resolve) => window.setTimeout(resolve, EXTRA_SCROLL_SAFETY_DELAY_MS))
   } catch {
     error.value = 'Nao foi possivel carregar mais posts.'
   } finally {
     loadingMore.value = false
   }
+}
+
+function scheduleLoadMore() {
+  if (!supportsInfiniteScroll.value) return
+  if (!canLoadMore.value || loadingMore.value || feedStore.loading) return
+  if (!sentinelIntersecting.value) return
+  if (pendingLoadTimer.value !== null) return
+
+  pendingLoadTimer.value = window.setTimeout(() => {
+    pendingLoadTimer.value = null
+
+    if (!userHasScrolled.value) return
+    if (!sentinelIntersecting.value) return
+    if (!canLoadMore.value || loadingMore.value || feedStore.loading) return
+
+    void loadMore()
+  }, EXTRA_SCROLL_SAFETY_DELAY_MS)
 }
 
 watch(
@@ -112,6 +145,7 @@ watch(
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onWindowScroll)
+  clearPendingLoadTimer()
   observer?.disconnect()
   observer = null
 })

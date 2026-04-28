@@ -11,9 +11,12 @@ use Illuminate\Support\Str;
 
 class PostsSeeder extends Seeder
 {
+    private const FORUM_MARKER = '[[FORUM_POST]]';
+
     public function run(): void
     {
         Storage::disk('public')->makeDirectory('posts');
+        $this->createForumPlaceholderImage();
 
         $demoCaptions = [
             'demo' => [
@@ -68,11 +71,14 @@ class PostsSeeder extends Seeder
                     ])->save();
                 }
 
+                $this->createForumSeedPost($user);
+
                 return;
             }
 
             if ($user->posts()->exists()) {
                 $this->ensureImagesExist($user);
+                $this->createForumSeedPost($user);
 
                 return;
             }
@@ -90,6 +96,8 @@ class PostsSeeder extends Seeder
                     'updated_at' => $createdAt,
                 ])->save();
             }
+
+            $this->createForumSeedPost($user);
         });
     }
 
@@ -127,6 +135,45 @@ SVG);
         return $filename;
     }
 
+    private function createForumSeedPost(User $user): void
+    {
+        $caption = self::FORUM_MARKER."\n".$this->forumCaptionFor($user->username);
+        $createdAt = Carbon::now()->subDays(random_int(1, 30))->subMinutes(random_int(0, 900));
+
+        $post = Post::query()->firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'caption' => $caption,
+            ],
+            [
+                'image_url' => 'posts/forum-placeholder.png',
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
+            ],
+        );
+
+        if (($post->getRawOriginal('image_url') ?? '') === '') {
+            $post->forceFill(['image_url' => 'posts/forum-placeholder.png'])->save();
+        }
+
+        $post->forceFill([
+            'created_at' => $post->created_at ?? $createdAt,
+            'updated_at' => $post->updated_at ?? $createdAt,
+        ])->save();
+    }
+
+    private function createForumPlaceholderImage(): void
+    {
+        $filename = 'posts/forum-placeholder.png';
+
+        if (Storage::disk('public')->exists($filename)) {
+            return;
+        }
+
+        $base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO5lp7sAAAAASUVORK5CYII=';
+        Storage::disk('public')->put($filename, base64_decode($base64, true) ?: '');
+    }
+
     /**
      * @return array<int, string>
      */
@@ -145,6 +192,19 @@ SVG);
             $templates[$offset],
             $templates[($offset + 1) % count($templates)],
         ];
+    }
+
+    private function forumCaptionFor(string $username): string
+    {
+        $topics = [
+            'Alguem ja testou um fluxo melhor para organizar comentarios no feed?',
+            'Quais melhorias voces priorizariam na proxima versao desse projeto?',
+            'Compartilhem dicas para manter consistencia de UI entre telas.',
+            'Quero ideias para melhorar onboarding de novos usuarios no app.',
+            'Como voces fariam moderacao simples em topicos de discussao?',
+        ];
+
+        return $topics[crc32($username) % count($topics)];
     }
 
     /**
